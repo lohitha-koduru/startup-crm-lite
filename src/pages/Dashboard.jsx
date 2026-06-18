@@ -1,11 +1,10 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 import {
   Users,
   Trophy,
   FileText,
-  DollarSign,
+  TrendingUp,
   Calendar,
   Target
 } from 'lucide-react';
@@ -15,6 +14,7 @@ import StatsCard from '../components/dashboard/StatsCard';
 import PipelineOverview from '../components/dashboard/PipelineOverview';
 import RecentLeads from '../components/dashboard/RecentLeads';
 import QuickActions from '../components/dashboard/QuickActions';
+import { useLeads } from '../context/LeadContext';
 
 /**
  * @typedef {Object} Lead
@@ -24,106 +24,33 @@ import QuickActions from '../components/dashboard/QuickActions';
  * @property {string} email - Email address.
  * @property {string} phone - Phone number.
  * @property {string} status - Lead stage.
- * @property {string} value - Deal value string (e.g., "$50,000").
- * @property {string} dateAdded - ISO date string.
+ * @property {string} source - Lead acquisition channel.
+ * @property {string} createdAt - ISO date string.
  */
 
 /**
  * Dashboard Component
  * Serves as the primary admin panel landing page for Startup CRM Lite.
  * Integrates KPI metrics, sales funnel distributions, recent records, and quick links.
+ * Lead data is sourced from the global LeadContext (localStorage-backed).
  *
  * @returns {React.JSX.Element} The rendered Dashboard page.
  */
 const Dashboard = () => {
   const navigate = useNavigate();
 
-  // Mock lead dataset to feed the widgets
-  const [leads] = useState([
-    {
-      id: 1,
-      name: 'Eleanor Vance',
-      company: 'Aether Bio',
-      email: 'eleanor@aether.bio',
-      phone: '+1 (555) 234-5678',
-      status: 'Qualified',
-      value: '$45,000',
-      dateAdded: '2026-06-15T08:30:00Z',
-    },
-    {
-      id: 2,
-      name: 'Oliver Queen',
-      company: 'Star Industries',
-      email: 'oliver@star.corp',
-      phone: '+1 (555) 876-5432',
-      status: 'Proposal Sent',
-      value: '$120,000',
-      dateAdded: '2026-06-14T14:15:00Z',
-    },
-    {
-      id: 3,
-      name: 'Selina Kyle',
-      company: 'Nighthawk Security',
-      email: 'selina@nighthawk.io',
-      phone: '+1 (555) 345-6789',
-      status: 'New',
-      value: '$28,500',
-      dateAdded: '2026-06-16T09:00:00Z',
-    },
-    {
-      id: 4,
-      name: 'Arthur Dent',
-      company: 'Deep Thought AI',
-      email: 'arthur@deepthought.tech',
-      phone: '+1 (555) 456-7890',
-      status: 'Contacted',
-      value: '$15,000',
-      dateAdded: '2026-06-13T10:45:00Z',
-    },
-    {
-      id: 5,
-      name: 'Bruce Banner',
-      company: 'Gamma Labs',
-      email: 'banner@gamma.org',
-      phone: '+1 (555) 901-2345',
-      status: 'Closed Won',
-      value: '$88,000',
-      dateAdded: '2026-06-12T11:20:00Z',
-    },
-    {
-      id: 6,
-      name: 'Tony Stark',
-      company: 'Stark Industries',
-      email: 'tony@stark.com',
-      phone: '+1 (555) 321-4567',
-      status: 'Closed Won',
-      value: '$500,000',
-      dateAdded: '2026-06-16T06:00:00Z',
-    },
-    {
-      id: 7,
-      name: 'Carol Danvers',
-      company: 'Hala Tech',
-      email: 'carol@hala.tech',
-      phone: '+1 (555) 789-0123',
-      status: 'New',
-      value: '$75,000',
-      dateAdded: '2026-06-15T18:25:00Z',
-    },
-  ]);
+  /** Reads the shared, localStorage-backed lead store from context. */
+  const { leads } = useLeads();
 
-  // Derive quantitative stats from state
+  // Derive quantitative stats from context leads
   const totalLeads = leads.length;
-  const closedWonCount = leads.filter((l) => l.status === 'Closed Won').length;
+  const wonCount = leads.filter((l) => l.status === 'Won').length;
   const proposalsSentCount = leads.filter((l) => l.status === 'Proposal Sent').length;
 
-  // Compute total deal pipeline valuation dynamically
-  const pipelineValue = leads.reduce((sum, lead) => {
-    const numericVal = parseFloat(lead.value.replace(/[^0-9.]/g, '')) || 0;
-    return sum + numericVal;
-  }, 0);
-
-  const formattedPipelineValue = `$${(pipelineValue / 1000).toFixed(1)}k`;
+  /** Leads that are still open (not Won or Lost). */
+  const activeDealsCount = leads.filter(
+    (l) => l.status !== 'Won' && l.status !== 'Lost'
+  ).length;
 
   /**
    * Action handler: Navigate to leads management page
@@ -194,8 +121,8 @@ const Dashboard = () => {
             color="primary"
           />
           <StatsCard
-            title="Closed Won"
-            value={closedWonCount}
+            title="Won Leads"
+            value={wonCount}
             icon={Trophy}
             change="+20.0%"
             color="success"
@@ -208,9 +135,9 @@ const Dashboard = () => {
             color="warning"
           />
           <StatsCard
-            title="Pipeline Value"
-            value={formattedPipelineValue}
-            icon={DollarSign}
+            title="Active Deals"
+            value={activeDealsCount}
+            icon={TrendingUp}
             change="+15.3%"
             color="success"
           />

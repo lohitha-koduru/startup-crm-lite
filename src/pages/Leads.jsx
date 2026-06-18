@@ -6,133 +6,27 @@
  *  - Full CRUD: create, read, update, delete leads.
  *  - Modal form (LeadForm) for add / edit operations.
  *  - React Hot Toast notifications (green on create/update, red on delete).
- *  - Live search across name, company, and email.
- *  - Status filter tab bar.
+ *  - Debounced live search (300 ms) across name, company, and email via SearchBar.
+ *  - Status filter tab bar with per-status counts via FilterBar.
+ *  - Smart EmptyState: differentiates zero-total vs. zero-after-filtering.
  *  - Toggle between Card grid view (mobile-first) and Table view (desktop-first).
- *  - Sample seed data so the page is non-empty on first load.
+ *  - Lead state sourced from global LeadContext (localStorage-backed).
  */
 
 import { useState, useMemo, useCallback, useId } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
-import {
-  Plus,
-  Search,
-  LayoutGrid,
-  Table2,
-  X,
-  SlidersHorizontal,
-} from 'lucide-react';
+import { Plus, LayoutGrid, Table2, X } from 'lucide-react';
 
-import LeadForm  from '../components/leads/LeadForm';
-import LeadCard  from '../components/leads/LeadCard';
-import LeadTable from '../components/leads/LeadTable';
+import LeadForm    from '../components/leads/LeadForm';
+import LeadCard    from '../components/leads/LeadCard';
+import LeadTable   from '../components/leads/LeadTable';
+import SearchBar   from '../components/common/SearchBar';
+import FilterBar   from '../components/common/FilterBar';
+import EmptyState  from '../components/common/EmptyState';
+import useDebounce from '../hooks/useDebounce';
+import { useLeads } from '../context/LeadContext';
 
-// ─── Seed data ──────────────────────────────────────────────────────────────
-
-/**
- * @type {import('../components/leads/LeadCard').Lead[]}
- * Pre-populated sample leads so the page looks rich on first load.
- * In Phase 8 this will be replaced with real API data.
- */
-const SEED_LEADS = [
-  {
-    id: 'seed-1',
-    name: 'Eleanor Vance',
-    company: 'Aether Bio',
-    email: 'eleanor@aether.bio',
-    phone: '+1 (555) 234-5678',
-    status: 'Qualified',           // mapped to our new "Won" palette — kept as-is for variety
-    source: 'LinkedIn',
-    dateAdded: '2026-06-15T08:30:00Z',
-  },
-  {
-    id: 'seed-2',
-    name: 'Oliver Queen',
-    company: 'Star Industries',
-    email: 'oliver@star.corp',
-    phone: '+1 (555) 876-5432',
-    status: 'Proposal Sent',
-    source: 'Referral',
-    dateAdded: '2026-06-14T14:15:00Z',
-  },
-  {
-    id: 'seed-3',
-    name: 'Selina Kyle',
-    company: 'Nighthawk Security',
-    email: 'selina@nighthawk.io',
-    phone: '+1 (555) 345-6789',
-    status: 'New',
-    source: 'Website',
-    dateAdded: '2026-06-16T09:00:00Z',
-  },
-  {
-    id: 'seed-4',
-    name: 'Arthur Dent',
-    company: 'Deep Thought AI',
-    email: 'arthur@deepthought.tech',
-    phone: '+1 (555) 456-7890',
-    status: 'Contacted',
-    source: 'Cold Call',
-    dateAdded: '2026-06-13T10:45:00Z',
-  },
-  {
-    id: 'seed-5',
-    name: 'Bruce Banner',
-    company: 'Gamma Labs',
-    email: 'banner@gamma.org',
-    phone: '+1 (555) 901-2345',
-    status: 'Won',
-    source: 'Email Campaign',
-    dateAdded: '2026-06-12T11:20:00Z',
-  },
-  {
-    id: 'seed-6',
-    name: 'Tony Stark',
-    company: 'Stark Industries',
-    email: 'tony@stark.com',
-    phone: '+1 (555) 321-4567',
-    status: 'Won',
-    source: 'Referral',
-    dateAdded: '2026-06-11T06:00:00Z',
-  },
-  {
-    id: 'seed-7',
-    name: 'Carol Danvers',
-    company: 'Hala Tech',
-    email: 'carol@hala.tech',
-    phone: '+1 (555) 789-0123',
-    status: 'Meeting Scheduled',
-    source: 'LinkedIn',
-    dateAdded: '2026-06-10T18:25:00Z',
-  },
-  {
-    id: 'seed-8',
-    name: 'Peter Parker',
-    company: 'Daily Bugle Digital',
-    email: 'peter@dailybugle.com',
-    phone: '+1 (555) 654-3210',
-    status: 'Lost',
-    source: 'Other',
-    dateAdded: '2026-06-09T13:00:00Z',
-  },
-];
-
-// ─── Status filter tabs ──────────────────────────────────────────────────────
-
-const STATUS_FILTERS = [
-  'All',
-  'New',
-  'Contacted',
-  'Meeting Scheduled',
-  'Proposal Sent',
-  'Won',
-  'Lost',
-];
-
-// ─── ID generator helper ─────────────────────────────────────────────────────
-
-/** Generates a lightweight unique id string for new leads. */
-const makeId = () => `lead-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+// Seed data, status filters, and ID generation are all handled by LeadContext.
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
@@ -144,10 +38,15 @@ const makeId = () => `lead-${Date.now()}-${Math.random().toString(36).slice(2, 7
  * @returns {JSX.Element}
  */
 const Leads = () => {
-  // ── State ─────────────────────────────────────────────────────────────────
+  // ── Context ───────────────────────────────────────────────────────────────
 
-  /** Master list of all leads in the system. */
-  const [leads, setLeads] = useState(SEED_LEADS);
+  /**
+   * Reads the global lead store and CRUD helpers from LeadContext.
+   * Mutations are persisted to localStorage automatically by the provider.
+   */
+  const { leads, addLead, updateLead, deleteLead } = useLeads();
+
+  // ── State ─────────────────────────────────────────────────────────────────
 
   /** Controls modal open/closed state. */
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -174,23 +73,34 @@ const Leads = () => {
   // ── Derived / memoised data ───────────────────────────────────────────────
 
   /**
-   * Filtered leads derived from `leads`, `searchQuery`, and `activeStatus`.
+   * Debounced copy of `searchQuery` — updates 300 ms after the user stops
+   * typing, preventing a filter recompute on every keystroke.
+   */
+  const debouncedSearch = useDebounce(searchQuery, 300);
+
+  /**
+   * Filtered leads derived from `leads`, `debouncedSearch`, and `activeStatus`.
    * Memoised to avoid recomputing on every unrelated render.
    */
   const filteredLeads = useMemo(() => {
-    const q = searchQuery.toLowerCase();
-    return leads.filter((lead) => {
-      const matchesSearch =
-        lead.name.toLowerCase().includes(q) ||
-        lead.company.toLowerCase().includes(q) ||
-        lead.email.toLowerCase().includes(q);
-      const matchesStatus =
-        activeStatus === 'All' || lead.status === activeStatus;
-      return matchesSearch && matchesStatus;
-    });
-  }, [leads, searchQuery, activeStatus]);
+    const q = debouncedSearch.toLowerCase();
+    return leads
+      .filter((lead) => activeStatus === 'All' || lead.status === activeStatus)
+      .filter(
+        (lead) =>
+          lead.name.toLowerCase().includes(q) ||
+          lead.company.toLowerCase().includes(q) ||
+          lead.email.toLowerCase().includes(q)
+      );
+  }, [leads, debouncedSearch, activeStatus]);
 
   // ── Handlers ─────────────────────────────────────────────────────────────
+
+  /** Resets both search query and status filter back to their initial values. */
+  const handleClearFilters = useCallback(() => {
+    setSearchQuery('');
+    setActiveStatus('All');
+  }, []);
 
   /** Opens the modal in create mode. */
   const handleOpenCreate = useCallback(() => {
@@ -216,30 +126,22 @@ const Leads = () => {
 
   /**
    * Handles form submission from LeadForm.
-   * Creates a new lead or updates an existing one depending on `selectedLead`.
+   * Delegates to `addLead` (create) or `updateLead` (edit) from LeadContext.
+   * ID generation and `createdAt` timestamping are handled by the context.
    *
    * @param {import('../components/leads/LeadForm').LeadFormData} formData
    */
   const handleFormSubmit = useCallback(
     (formData) => {
       if (selectedLead) {
-        // ── UPDATE ──
-        setLeads((prev) =>
-          prev.map((l) =>
-            l.id === selectedLead.id ? { ...l, ...formData } : l
-          )
-        );
+        // ── UPDATE ── delegate to context; ID stays unchanged
+        updateLead(selectedLead.id, formData);
         toast.success(`${formData.name} updated successfully.`, {
           style: { fontWeight: '600' },
         });
       } else {
-        // ── CREATE ──
-        const newLead = {
-          ...formData,
-          id: makeId(),
-          dateAdded: new Date().toISOString(),
-        };
-        setLeads((prev) => [newLead, ...prev]);
+        // ── CREATE ── context auto-assigns id + createdAt
+        addLead(formData);
         toast.success(`${formData.name} added to your pipeline!`, {
           style: { fontWeight: '600' },
           iconTheme: { primary: '#22C55E', secondary: '#fff' },
@@ -247,22 +149,23 @@ const Leads = () => {
       }
       handleCloseModal();
     },
-    [selectedLead, handleCloseModal]
+    [selectedLead, handleCloseModal, addLead, updateLead]
   );
 
   /**
-   * Deletes a lead by id with a confirmation toast.
+   * Deletes a lead by id, then shows a toast notification.
+   * Delegates removal to `deleteLead` from LeadContext (localStorage-synced).
    *
-   * @param {string|number} id
+   * @param {string} id - The id of the lead to remove.
    */
   const handleDelete = useCallback((id) => {
     const target = leads.find((l) => l.id === id);
-    setLeads((prev) => prev.filter((l) => l.id !== id));
+    deleteLead(id);
     toast.error(`${target?.name ?? 'Lead'} has been removed.`, {
       style: { fontWeight: '600' },
       iconTheme: { primary: '#EF4444', secondary: '#fff' },
     });
-  }, [leads]);
+  }, [leads, deleteLead]);
 
   // ── Render ────────────────────────────────────────────────────────────────
 
@@ -299,29 +202,8 @@ const Leads = () => {
         <div className="bg-white dark:bg-slate-950 rounded-2xl border border-slate-200/60 dark:border-slate-850 p-4 shadow-sm space-y-4">
 
           <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
-            {/* Search box */}
-            <div className="relative flex-1 max-w-sm">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
-              <input
-                type="search"
-                id="leads-search"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search by name, company, or email…"
-                aria-label="Search leads"
-                className="block w-full pl-9 pr-10 py-2.5 text-sm bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-xl outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 dark:text-white transition-all"
-              />
-              {searchQuery && (
-                <button
-                  type="button"
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
-                  aria-label="Clear search"
-                >
-                  <X className="h-3.5 w-3.5" />
-                </button>
-              )}
-            </div>
+            {/* Debounced search box */}
+            <SearchBar value={searchQuery} onChange={setSearchQuery} />
 
             {/* View mode toggle */}
             <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-900 rounded-xl">
@@ -354,48 +236,18 @@ const Leads = () => {
             </div>
           </div>
 
-          {/* Status filter tab strip */}
-          <div
-            role="tablist"
-            aria-label="Filter leads by status"
-            className="flex flex-wrap gap-1.5"
-          >
-            <SlidersHorizontal className="h-4 w-4 text-slate-400 self-center mr-1 flex-shrink-0" />
-            {STATUS_FILTERS.map((status) => (
-              <button
-                key={status}
-                role="tab"
-                aria-selected={activeStatus === status}
-                type="button"
-                onClick={() => setActiveStatus(status)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-all ${
-                  activeStatus === status
-                    ? 'bg-slate-900 text-white dark:bg-primary dark:text-white'
-                    : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white'
-                }`}
-              >
-                {status}
-                {/* Show count badge on each tab */}
-                <span
-                  className={`ml-1.5 ${
-                    activeStatus === status
-                      ? 'text-slate-300'
-                      : 'text-slate-400 dark:text-slate-500'
-                  }`}
-                >
-                  {status === 'All'
-                    ? leads.length
-                    : leads.filter((l) => l.status === status).length}
-                </span>
-              </button>
-            ))}
-          </div>
+          {/* Status filter bar with per-status counts */}
+          <FilterBar
+            activeFilter={activeStatus}
+            onFilterChange={setActiveStatus}
+            leads={leads}
+          />
         </div>
 
         {/* ── Content: Card grid OR Table ── */}
         {viewMode === 'card' ? (
           filteredLeads.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 transition-all duration-300">
               {filteredLeads.map((lead) => (
                 <LeadCard
                   key={lead.id}
@@ -406,13 +258,23 @@ const Leads = () => {
               ))}
             </div>
           ) : (
-            <EmptyState onAdd={handleOpenCreate} />
+            <EmptyState
+              totalLeads={leads.length}
+              onAdd={handleOpenCreate}
+              onClearFilters={handleClearFilters}
+            />
           )
-        ) : (
+        ) : filteredLeads.length > 0 ? (
           <LeadTable
             leads={filteredLeads}
             onEdit={handleOpenEdit}
             onDelete={handleDelete}
+          />
+        ) : (
+          <EmptyState
+            totalLeads={leads.length}
+            onAdd={handleOpenCreate}
+            onClearFilters={handleClearFilters}
           />
         )}
 
@@ -477,38 +339,5 @@ const Leads = () => {
     </div>
   );
 };
-
-// ─── Empty state sub-component ───────────────────────────────────────────────
-
-/**
- * EmptyState Component
- * Displayed in card view when no leads match the active filters.
- *
- * @param {{ onAdd: function(): void }} props
- * @returns {JSX.Element}
- */
-const EmptyState = ({ onAdd }) => (
-  <div className="flex flex-col items-center justify-center py-24 gap-4">
-    <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
-      <Search className="h-7 w-7 text-primary/60" />
-    </div>
-    <div className="text-center">
-      <p className="font-semibold text-slate-700 dark:text-slate-300">
-        No leads found
-      </p>
-      <p className="text-sm text-slate-400 dark:text-slate-500 mt-1">
-        Try a different search or filter — or add a brand-new lead.
-      </p>
-    </div>
-    <button
-      type="button"
-      onClick={onAdd}
-      className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white font-semibold text-sm rounded-xl shadow-lg shadow-primary/20 active:scale-95 transition-all"
-    >
-      <Plus className="h-4 w-4" />
-      Add New Lead
-    </button>
-  </div>
-);
 
 export default Leads;

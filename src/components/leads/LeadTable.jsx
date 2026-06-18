@@ -21,7 +21,7 @@ import StatusBadge from './StatusBadge';
  * @property {string} [phone]
  * @property {string} status
  * @property {string} source
- * @property {string} dateAdded
+ * @property {string} createdAt
  */
 
 /**
@@ -37,7 +37,7 @@ const COLUMNS = [
   { key: 'status',    label: 'Status',         sortable: true  },
   { key: 'email',     label: 'Email',          sortable: false },
   { key: 'source',    label: 'Source',         sortable: true  },
-  { key: 'dateAdded', label: 'Date Added',     sortable: true  },
+  { key: 'createdAt', label: 'Date Added',     sortable: true  },
   { key: 'actions',   label: 'Actions',        sortable: false },
 ];
 
@@ -53,7 +53,7 @@ const LeadTable = ({ leads, onEdit, onDelete }) => {
    * @typedef {'asc'|'desc'} SortDir
    * @typedef {{ key: string, dir: SortDir }} SortState
    */
-  const [sort, setSort] = useState({ key: 'dateAdded', dir: 'desc' });
+  const [sort, setSort] = useState({ key: 'createdAt', dir: 'desc' });
 
   /**
    * Toggles sort direction or switches sort key.
@@ -159,7 +159,7 @@ const LeadTable = ({ leads, onEdit, onDelete }) => {
                   {/* Date Added */}
                   <td className="py-4 px-5">
                     <time className="text-xs text-slate-500 dark:text-slate-400">
-                      {new Date(lead.dateAdded).toLocaleDateString('en-US', {
+                      {new Date(lead.createdAt).toLocaleDateString('en-US', {
                         month: 'short',
                         day: 'numeric',
                         year: 'numeric',

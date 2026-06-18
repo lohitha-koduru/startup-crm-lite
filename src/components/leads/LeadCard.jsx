@@ -20,7 +20,7 @@ import StatusBadge from './StatusBadge';
  * @property {string}        [phone] - Optional phone number.
  * @property {string}        status  - Pipeline stage label.
  * @property {string}        source  - Acquisition channel.
- * @property {string}        dateAdded - ISO date string.
+ * @property {string}        createdAt - ISO date string.
  */
 
 /**
@@ -108,7 +108,7 @@ const LeadCard = ({ lead, onEdit, onDelete }) => {
         {/* ── Footer: date + actions ── */}
         <div className="flex items-center justify-between pt-1 border-t border-slate-100 dark:border-slate-850">
           <time className="text-[11px] text-slate-400 dark:text-slate-500">
-            Added {new Date(lead.dateAdded).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+            Added {new Date(lead.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
           </time>
 
           <div className="flex items-center gap-1">

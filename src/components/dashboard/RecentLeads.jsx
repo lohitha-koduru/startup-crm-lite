@@ -5,9 +5,8 @@
  * @property {string|number} id - Unique identifier.
  * @property {string} name - Contact person name.
  * @property {string} company - Organization/startup name.
- * @property {string} status - Lead stage (e.g. "New", "Contacted", "Qualified", "Proposal Sent", "Closed Won").
- * @property {string} value - Financial deal value.
- * @property {string} dateAdded - Date string when the lead was added.
+ * @property {string} status - Lead stage.
+ * @property {string} createdAt - Date string when the lead was added.
  */
 
 /**
@@ -25,7 +24,7 @@
 const RecentLeads = ({ leads = [] }) => {
   // Sort leads by date added (descending) and take the top 5
   const recentLeads = [...leads]
-    .sort((a, b) => new Date(b.dateAdded) - new Date(a.dateAdded))
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     .slice(0, 5);
 
   /**
@@ -65,9 +64,10 @@ const RecentLeads = ({ leads = [] }) => {
   const statusStyles = {
     'New': 'bg-primary/10 text-primary border-primary/20',
     'Contacted': 'bg-warning/10 text-warning border-warning/20',
-    'Qualified': 'bg-success/10 text-success border-success/20',
+    'Meeting Scheduled': 'bg-success/10 text-success border-success/20',
     'Proposal Sent': 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20',
-    'Closed Won': 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20',
+    'Won': 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20',
+    'Lost': 'bg-danger/10 text-danger border-danger/20',
   };
 
   return (
@@ -89,7 +89,6 @@ const RecentLeads = ({ leads = [] }) => {
             <tr className="bg-slate-50/50 border-b border-slate-100 dark:bg-slate-900/20 dark:border-slate-850 text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">
               <th className="py-4 px-6">Name / Company</th>
               <th className="py-4 px-6">Status</th>
-              <th className="py-4 px-6">Deal Value</th>
               <th className="py-4 px-6">Date Added</th>
             </tr>
           </thead>
@@ -128,22 +127,15 @@ const RecentLeads = ({ leads = [] }) => {
                     </span>
                   </td>
 
-                  {/* Financial value */}
-                  <td className="py-4 px-6">
-                    <span className="font-bold text-slate-700 dark:text-slate-200 text-sm">
-                      {lead.value}
-                    </span>
-                  </td>
-
                   {/* Date added */}
                   <td className="py-4 px-6 text-xs text-slate-450 dark:text-slate-500 font-medium">
-                    {formatDate(lead.dateAdded)}
+                    {formatDate(lead.createdAt)}
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="4" className="py-12 text-center">
+                <td colSpan="3" className="py-12 text-center">
                   <p className="text-slate-400 dark:text-slate-500 text-sm font-semibold">
                     No leads available.
                   </p>

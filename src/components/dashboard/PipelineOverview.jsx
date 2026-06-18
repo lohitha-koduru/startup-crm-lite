@@ -5,9 +5,8 @@
  * @property {string|number} id - Unique identifier.
  * @property {string} name - Contact person name.
  * @property {string} company - Organization/startup name.
- * @property {string} status - Lead stage (e.g. "New", "Contacted", "Qualified", "Proposal Sent", "Closed Won").
- * @property {string} value - Financial deal value.
- * @property {string} [dateAdded] - ISO format or friendly date string.
+ * @property {string} status - Lead stage.
+ * @property {string} [createdAt] - ISO format or friendly date string.
  */
 
 /**
@@ -39,7 +38,7 @@ const PipelineOverview = ({ leads = [] }) => {
       bgLight: 'bg-warning/10',
       border: 'border-warning/20',
     },
-    'Qualified': {
+    'Meeting Scheduled': {
       color: 'bg-success',
       textColor: 'text-success',
       bgLight: 'bg-success/10',
@@ -51,11 +50,17 @@ const PipelineOverview = ({ leads = [] }) => {
       bgLight: 'bg-indigo-500/10',
       border: 'border-indigo-500/20',
     },
-    'Closed Won': {
+    'Won': {
       color: 'bg-purple-500',
       textColor: 'text-purple-600 dark:text-purple-400',
       bgLight: 'bg-purple-500/10',
       border: 'border-purple-500/20',
+    },
+    'Lost': {
+      color: 'bg-danger',
+      textColor: 'text-danger',
+      bgLight: 'bg-danger/10',
+      border: 'border-danger/20',
     },
   };
 
@@ -107,7 +112,7 @@ const PipelineOverview = ({ leads = [] }) => {
           </div>
 
           {/* Detailed Metric Legend Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 pt-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 pt-2">
             {pipelineSegments.map((segment) => (
               <div
                 key={segment.stage}
