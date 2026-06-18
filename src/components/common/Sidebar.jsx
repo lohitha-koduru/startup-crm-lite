@@ -162,7 +162,7 @@ const Sidebar = () => {
       )}
 
       {/* ─── 4. TABLET & DESKTOP SIDEBAR VIEW ─── */}
-      <aside className="hidden md:flex md:flex-col md:w-24 lg:w-64 md:fixed md:inset-y-0 md:left-0 md:z-30 bg-white border-r border-slate-200/50 dark:bg-slate-950 dark:border-slate-850/60 shadow-sm transition-all duration-300">
+      <aside className="hidden md:flex md:flex-col md:w-24 lg:w-64 shrink-0 sticky top-0 h-screen bg-white border-r border-slate-200/50 dark:bg-slate-950 dark:border-slate-850/60 shadow-sm transition-all duration-300">
         
         {/* Brand Header area */}
         <div className="h-16 flex items-center justify-center lg:justify-start px-4 lg:px-6 border-b border-slate-200/40 dark:border-slate-850/60">

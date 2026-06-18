@@ -161,12 +161,12 @@ const Dashboard = () => {
             />
 
             {/* Target Conversion Widget */}
-            <div className="bg-slate-900 text-white rounded-2xl p-6 border border-slate-850 dark:bg-slate-950 shadow-sm space-y-6 relative overflow-hidden">
+            <div className="bg-white dark:bg-slate-950 text-slate-800 dark:text-white rounded-2xl p-6 border border-slate-200/60 dark:border-slate-850 shadow-sm space-y-6 relative overflow-hidden transition-colors duration-200">
               <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full filter blur-xl"></div>
               
               <div className="flex items-center gap-2">
                 <Target className="h-5 w-5 text-primary" />
-                <h3 className="text-base font-bold">Conversion Goal</h3>
+                <h3 className="text-base font-bold text-slate-900 dark:text-white">Conversion Goal</h3>
               </div>
 
               <div className="flex flex-col items-center justify-center pt-2">
@@ -177,7 +177,7 @@ const Dashboard = () => {
                       cx="72"
                       cy="72"
                       r="54"
-                      className="stroke-slate-800"
+                      className="stroke-slate-100 dark:stroke-slate-800"
                       strokeWidth="8"
                       fill="transparent"
                     />
@@ -194,8 +194,8 @@ const Dashboard = () => {
                     />
                   </svg>
                   <div className="absolute text-center">
-                    <span className="text-3xl font-extrabold">82%</span>
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">
+                    <span className="text-3xl font-extrabold text-slate-900 dark:text-white">82%</span>
+                    <p className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider mt-0.5">
                       Reached
                     </p>
                   </div>
@@ -203,12 +203,12 @@ const Dashboard = () => {
               </div>
 
               {/* Conversion Statistics */}
-              <div className="space-y-3 pt-2 text-xs border-t border-slate-800">
-                <div className="flex justify-between items-center text-slate-400">
+              <div className="space-y-3 pt-2 text-xs border-t border-slate-100 dark:border-slate-850">
+                <div className="flex justify-between items-center text-slate-500 dark:text-slate-400">
                   <span>Target Rate</span>
-                  <span className="font-semibold text-white">15.0%</span>
+                  <span className="font-semibold text-slate-900 dark:text-white">15.0%</span>
                 </div>
-                <div className="flex justify-between items-center text-slate-400">
+                <div className="flex justify-between items-center text-slate-500 dark:text-slate-400">
                   <span>Current Rate</span>
                   <span className="font-semibold text-success">12.3%</span>
                 </div>
