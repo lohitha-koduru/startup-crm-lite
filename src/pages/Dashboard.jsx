@@ -111,8 +111,8 @@ const Dashboard = () => {
         </div>
 
         {/* KPI Stats Grid */}
-        {/* Responsive grid: 1 column on mobile, 2 on tablet, 4 on desktop */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Responsive grid: 1 column on mobile, 2 on tablet (md), 4 on desktop (lg) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatsCard
             title="Total Leads"
             value={totalLeads}
@@ -144,14 +144,15 @@ const Dashboard = () => {
         </div>
 
         {/* Main Dashboard Layout Columns */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Visuals & Tables (2/3 width on desktop) */}
-          <div className="lg:col-span-2 space-y-8">
+        {/* Responsive layout: stacked full-width on mobile/tablet, 2 columns on desktop */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Column 1: Pipeline Overview Chart & Recent Leads Table */}
+          <div className="space-y-8">
             <PipelineOverview leads={leads} />
             <RecentLeads leads={leads} />
           </div>
 
-          {/* Quick Actions & Target Goals (1/3 width on desktop) */}
+          {/* Column 2: Quick Actions & Conversion Target Goal Dial */}
           <div className="space-y-8">
             <QuickActions
               onAddLead={handleAddLead}

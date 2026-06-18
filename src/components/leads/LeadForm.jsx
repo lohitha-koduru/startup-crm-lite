@@ -68,6 +68,8 @@ const LeadForm = ({ initialData, onSubmit, onCancel }) => {
     phone:   initialData?.phone   ?? '',
     status:  initialData?.status  ?? 'New',
     source:  initialData?.source  ?? 'Website',
+    value:   initialData?.value   ?? '',
+    owner:   initialData?.owner   ?? 'Sarah',
   });
 
   /** Field-level validation error messages (keyed by field name). */
@@ -234,7 +236,7 @@ const LeadForm = ({ initialData, onSubmit, onCancel }) => {
                 name="status"
                 value={formData.status}
                 onChange={handleChange}
-                className="block w-full pl-10 pr-8 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 dark:text-white outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all appearance-none"
+                className="block w-full pl-10 pr-8 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-850 bg-slate-50/50 dark:bg-slate-900/40 dark:text-white outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all appearance-none"
               >
                 {STATUS_OPTIONS.map((s) => (
                   <option key={s} value={s}>{s}</option>
@@ -255,10 +257,55 @@ const LeadForm = ({ initialData, onSubmit, onCancel }) => {
                 name="source"
                 value={formData.source}
                 onChange={handleChange}
-                className="block w-full pl-10 pr-8 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 dark:text-white outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all appearance-none"
+                className="block w-full pl-10 pr-8 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-850 bg-slate-50/50 dark:bg-slate-900/40 dark:text-white outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all appearance-none"
               >
                 {SOURCE_OPTIONS.map((s) => (
                   <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Value & Owner (side-by-side on sm+) ── */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+
+          {/* Value */}
+          <div>
+            <label htmlFor="lead-value" className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5 uppercase tracking-wider">
+              Deal Value (₹)
+            </label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400 font-semibold pointer-events-none">₹</span>
+              <input
+                id="lead-value"
+                name="value"
+                type="number"
+                min="0"
+                value={formData.value}
+                onChange={handleChange}
+                placeholder="e.g. 50000"
+                className="block w-full pl-8 pr-4 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-850 bg-slate-50/50 dark:bg-slate-900/40 dark:text-white outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+              />
+            </div>
+          </div>
+
+          {/* Owner */}
+          <div>
+            <label htmlFor="lead-owner" className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5 uppercase tracking-wider">
+              Sales Owner
+            </label>
+            <div className="relative">
+              <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+              <select
+                id="lead-owner"
+                name="owner"
+                value={formData.owner}
+                onChange={handleChange}
+                className="block w-full pl-10 pr-8 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-850 bg-slate-50/50 dark:bg-slate-900/40 dark:text-white outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all appearance-none"
+              >
+                {['Sarah', 'Alex', 'David'].map((owner) => (
+                  <option key={owner} value={owner}>{owner}</option>
                 ))}
               </select>
             </div>

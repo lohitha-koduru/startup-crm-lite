@@ -1,10 +1,24 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="dark">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>startup-crm</title>
+    <title>Startup CRM Lite</title>
+    <meta name="description" content="Lightweight CRM for startups — manage leads, track pipelines, and analyse performance." />
+    <!-- Inline theme script to prevent flash of wrong theme on page load -->
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem('startup-crm-theme');
+          if (stored === 'light') {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.classList.add('light');
+          }
+          // Default is dark — the HTML element already has class="dark"
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

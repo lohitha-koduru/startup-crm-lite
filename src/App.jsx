@@ -15,16 +15,16 @@ function App() {
     // Wrap with BrowserRouter to allow children (e.g. NavLink) to access navigation parameters.
     <BrowserRouter>
       {/* Root layout wrapper with custom fonts */}
-      <div className="min-h-screen bg-slate-50/50 text-slate-800 flex flex-col font-roboto transition-colors duration-300 dark:bg-slate-900/60 dark:text-slate-100">
+      <div className="min-h-screen bg-slate-50/50 text-slate-800 flex flex-col font-roboto transition-colors duration-200 dark:bg-slate-900/60 dark:text-slate-100">
         
         {/* Left vertical sidebar (Desktop fixed, Mobile sliding overlay) */}
         <Sidebar />
 
         {/* 
           Main content frame offset.
-          Uses 'md:pl-64' on screens larger than mobile to shift elements from behind the fixed sidebar.
+          Adapts spacing layout across mobile (bottom-bar padding), tablet (narrow sidebar pl-24), and desktop (wide sidebar pl-64).
         */}
-        <div className="flex-grow flex flex-col md:pl-64">
+        <div className="flex-grow flex flex-col pb-16 md:pb-0 md:pl-24 lg:pl-64">
           
           {/* Main layout container holding our pages */}
           <main className="flex-grow">

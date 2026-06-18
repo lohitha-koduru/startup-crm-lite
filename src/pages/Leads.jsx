@@ -206,13 +206,14 @@ const Leads = () => {
             <SearchBar value={searchQuery} onChange={setSearchQuery} />
 
             {/* View mode toggle */}
-            <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-900 rounded-xl">
+            {/* View mode toggle - Visible only on Tablet (md to lg) */}
+            <div className="hidden md:flex lg:hidden items-center gap-1 p-1 bg-slate-100 dark:bg-slate-900 rounded-xl">
               <button
                 type="button"
                 onClick={() => setViewMode('table')}
                 aria-label="Table view"
                 aria-pressed={viewMode === 'table'}
-                className={`p-2 rounded-lg transition-all ${
+                className={`p-2 rounded-lg transition-all cursor-pointer ${
                   viewMode === 'table'
                     ? 'bg-white dark:bg-slate-800 text-primary shadow-sm'
                     : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
@@ -225,7 +226,7 @@ const Leads = () => {
                 onClick={() => setViewMode('card')}
                 aria-label="Card view"
                 aria-pressed={viewMode === 'card'}
-                className={`p-2 rounded-lg transition-all ${
+                className={`p-2 rounded-lg transition-all cursor-pointer ${
                   viewMode === 'card'
                     ? 'bg-white dark:bg-slate-800 text-primary shadow-sm'
                     : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
@@ -244,32 +245,32 @@ const Leads = () => {
           />
         </div>
 
-        {/* ── Content: Card grid OR Table ── */}
-        {viewMode === 'card' ? (
-          filteredLeads.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 transition-all duration-300">
-              {filteredLeads.map((lead) => (
-                <LeadCard
-                  key={lead.id}
-                  lead={lead}
-                  onEdit={handleOpenEdit}
-                  onDelete={handleDelete}
-                />
-              ))}
+        {/* ── Content: Card grid OR Table (Fully Responsive) ── */}
+        {filteredLeads.length > 0 ? (
+          <>
+            {/* Card grid view - Forced on mobile, togglable on tablet, hidden on desktop */}
+            <div className={`block lg:hidden ${viewMode === 'table' ? 'md:hidden' : 'md:block'}`}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 transition-all duration-300">
+                {filteredLeads.map((lead) => (
+                  <LeadCard
+                    key={lead.id}
+                    lead={lead}
+                    onEdit={handleOpenEdit}
+                    onDelete={handleDelete}
+                  />
+                ))}
+              </div>
             </div>
-          ) : (
-            <EmptyState
-              totalLeads={leads.length}
-              onAdd={handleOpenCreate}
-              onClearFilters={handleClearFilters}
-            />
-          )
-        ) : filteredLeads.length > 0 ? (
-          <LeadTable
-            leads={filteredLeads}
-            onEdit={handleOpenEdit}
-            onDelete={handleDelete}
-          />
+
+            {/* Table view - Hidden on mobile, togglable on tablet, forced on desktop */}
+            <div className={`hidden lg:block ${viewMode === 'table' ? 'md:block' : 'md:hidden'}`}>
+              <LeadTable
+                leads={filteredLeads}
+                onEdit={handleOpenEdit}
+                onDelete={handleDelete}
+              />
+            </div>
+          </>
         ) : (
           <EmptyState
             totalLeads={leads.length}
@@ -280,14 +281,14 @@ const Leads = () => {
 
       </div>
 
-      {/* ── Modal overlay ── */}
+      {/* ── Modal overlay (Full Screen on Mobile, Centered on Tablet+) ── */}
       {isModalOpen && (
         // Backdrop
         <div
           role="dialog"
           aria-modal="true"
           aria-labelledby={modalTitleId}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center p-0 md:p-4"
         >
           {/* Dimmed background */}
           <div
@@ -297,10 +298,10 @@ const Leads = () => {
           />
 
           {/* Modal panel */}
-          <div className="relative w-full max-w-lg bg-white dark:bg-slate-950 rounded-2xl shadow-2xl border border-slate-200/60 dark:border-slate-850 overflow-hidden animate-[fadeInUp_0.2s_ease]">
+          <div className="relative w-full h-full md:h-auto md:max-w-lg bg-white dark:bg-slate-950 rounded-none md:rounded-2xl shadow-2xl border-0 md:border border-slate-200/60 dark:border-slate-850 overflow-hidden flex flex-col animate-[fadeInUp_0.2s_ease]">
 
             {/* Modal header */}
-            <div className="flex items-center justify-between p-6 pb-4 border-b border-slate-100 dark:border-slate-850">
+            <div className="flex items-center justify-between p-6 pb-4 border-b border-slate-100 dark:border-slate-850 flex-shrink-0">
               <div>
                 <h2
                   id={modalTitleId}
@@ -318,14 +319,14 @@ const Leads = () => {
                 type="button"
                 onClick={handleCloseModal}
                 aria-label="Close modal"
-                className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-900 transition-all"
+                className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-900 transition-all cursor-pointer w-10 h-10 flex items-center justify-center"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
-            {/* Modal body: the form */}
-            <div className="p-6">
+            {/* Modal body: the form (Scrollable on Mobile to prevent height overflow) */}
+            <div className="p-6 flex-grow overflow-y-auto max-h-[calc(100vh-100px)] md:max-h-none">
               <LeadForm
                 initialData={selectedLead}
                 onSubmit={handleFormSubmit}

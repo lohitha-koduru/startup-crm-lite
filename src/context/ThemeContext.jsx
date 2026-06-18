@@ -2,9 +2,26 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 
 /**
  * @typedef {Object} ThemeContextValue
- * @property {boolean} isDarkMode
+ * @property {boolean} isLightMode
  * @property {() => void} toggleTheme
  */
+
+const STORAGE_KEY = 'startup-crm-theme';
+
+/**
+ * Reads the persisted theme preference from localStorage.
+ * Returns false (dark mode) by default when no preference is stored.
+ *
+ * @returns {boolean} Whether light mode is active.
+ */
+const getStoredTheme = () => {
+  try {
+    const stored = window.localStorage.getItem(STORAGE_KEY);
+    return stored === 'light';
+  } catch {
+    return false;
+  }
+};
 
 /**
  * Stores global theme state and actions.
@@ -15,32 +32,51 @@ export const ThemeContext = createContext(null);
 
 /**
  * Provides theme state to the application and syncs the document root class.
+ * Dark mode is the default. When isLightMode is true the 'dark' class is
+ * removed from the root element, revealing Tailwind's base (light) styles.
  *
  * @param {{ children: React.ReactNode }} props
  * @returns {React.JSX.Element} The provider-wrapped React subtree.
  */
 export const ThemeProvider = ({ children }) => {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isLightMode, setIsLightMode] = useState(getStoredTheme);
 
+  // Sync the document root class whenever the state changes.
   useEffect(() => {
-    document.documentElement.classList.toggle('dark', isDarkMode);
-  }, [isDarkMode]);
+    const root = document.documentElement;
+
+    if (isLightMode) {
+      root.classList.remove('dark');
+      root.classList.add('light');
+    } else {
+      root.classList.remove('light');
+      root.classList.add('dark');
+    }
+  }, [isLightMode]);
 
   /**
-   * Toggles dark mode on and off.
+   * Toggles between light and dark mode, persisting the choice.
    *
    * @returns {void}
    */
   const toggleTheme = useCallback(() => {
-    setIsDarkMode((currentMode) => !currentMode);
+    setIsLightMode((current) => {
+      const next = !current;
+      try {
+        window.localStorage.setItem(STORAGE_KEY, next ? 'light' : 'dark');
+      } catch {
+        // Silently ignore write errors (e.g. private browsing).
+      }
+      return next;
+    });
   }, []);
 
   const value = useMemo(
     () => ({
-      isDarkMode,
+      isLightMode,
       toggleTheme,
     }),
-    [isDarkMode, toggleTheme]
+    [isLightMode, toggleTheme]
   );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
