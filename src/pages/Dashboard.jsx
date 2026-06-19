@@ -70,11 +70,62 @@ const Dashboard = () => {
   };
 
   /**
-   * Action handler: Simulate lead data export
+   * Action handler: Export lead data as CSV and trigger browser download
    */
   const handleExportData = () => {
+    if (!leads || leads.length === 0) {
+      toast.error('No lead records available to export.');
+      return;
+    }
+
     toast.promise(
-      new Promise((resolve) => setTimeout(resolve, 1500)),
+      new Promise((resolve, reject) => {
+        setTimeout(() => {
+          try {
+            // Generate CSV content with appropriate headers
+            const headers = ['ID', 'Name', 'Company', 'Email', 'Phone', 'Status', 'Source', 'Created At'];
+            
+            const escapeCSV = (val) => {
+              if (val === null || val === undefined) return '';
+              const str = String(val);
+              // Handle quotes, commas, and line breaks according to RFC 4180
+              if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {
+                return `"${str.replace(/"/g, '""')}"`;
+              }
+              return str;
+            };
+
+            const rows = leads.map((lead) => [
+              escapeCSV(lead.id),
+              escapeCSV(lead.name),
+              escapeCSV(lead.company),
+              escapeCSV(lead.email),
+              escapeCSV(lead.phone),
+              escapeCSV(lead.status),
+              escapeCSV(lead.source),
+              escapeCSV(lead.createdAt)
+            ]);
+
+            const csvString = [headers, ...rows].map((row) => row.join(',')).join('\n');
+            
+            // Create a Blob and trigger direct browser download
+            const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', `leads-export-${new Date().toISOString().slice(0, 10)}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            resolve();
+          } catch (error) {
+            reject(error);
+          }
+        }, 1500);
+      }),
       {
         loading: 'Preparing lead CSV data...',
         success: 'Lead records exported successfully!',
