@@ -66,7 +66,10 @@ const PipelineOverview = ({ leads = [] }) => {
 
   // Calculate lead counts and percentages per stage
   const pipelineSegments = Object.keys(stageConfig).map((stage) => {
-    const count = leads.filter((lead) => lead.status === stage).length;
+    const count = leads.filter((lead) => {
+      const leadStatus = (lead.status || '').toString().toLowerCase().trim();
+      return leadStatus === stage.toLowerCase();
+    }).length;
     const percentage = totalLeads > 0 ? (count / totalLeads) * 100 : 0;
     
     return {
@@ -113,7 +116,9 @@ const PipelineOverview = ({ leads = [] }) => {
 
           {/* Detailed Metric Legend Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 pt-2">
-            {pipelineSegments.map((segment) => (
+            {pipelineSegments
+              .filter((segment) => segment.count > 0)
+              .map((segment) => (
               <div
                 key={segment.stage}
                 className={`flex flex-col p-3 rounded-xl border border-slate-100 dark:border-slate-850/50 hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-all duration-200`}
