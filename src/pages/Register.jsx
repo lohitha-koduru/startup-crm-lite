@@ -20,6 +20,7 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    alert("Submit button clicked");
     setError('');
 
     // Client-side validations
