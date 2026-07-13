@@ -5,6 +5,8 @@ import { NavLink, Link } from 'react-router-dom';
 import { LayoutDashboard, Users, BarChart3, Menu, X, Sparkles, User, LogOut } from 'lucide-react';
 // Import LightModeToggle component
 import LightModeToggle from './LightModeToggle';
+import { useAuth } from '../../context/AuthContext';
+
 
 /**
  * Sidebar Component
@@ -16,6 +18,18 @@ import LightModeToggle from './LightModeToggle';
 const Sidebar = () => {
   // State Hook to handle mobile side drawer visibility.
   const [isOpen, setIsOpen] = useState(false);
+  const { user, logout } = useAuth();
+
+  // Get name initials for avatar
+  const initials = user?.name
+    ? user.name
+        .split(' ')
+        .map((n) => n[0])
+        .slice(0, 2)
+        .join('')
+        .toUpperCase()
+    : 'U';
+
 
   /**
    * Helper function to construct classes for the navigation items dynamically.
@@ -147,14 +161,25 @@ const Sidebar = () => {
 
             {/* Drawer User Profile Section at bottom */}
             <div className="mt-auto border-t border-slate-100 pt-4 dark:border-slate-850">
-              <div className="flex items-center gap-3">
-                <div className="h-9 w-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 dark:bg-slate-900 dark:text-slate-400">
-                  <User className="h-4.5 w-4.5" />
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="h-9 w-9 rounded-xl bg-indigo-500 text-white flex items-center justify-center font-bold text-sm flex-shrink-0">
+                    {initials}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-semibold text-slate-800 truncate dark:text-slate-150">
+                      {user?.name || 'User'}
+                    </p>
+                    <p className="text-[10px] text-slate-400 truncate">{user?.email || ''}</p>
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-semibold text-slate-800 truncate dark:text-slate-150">Admin User</p>
-                  <p className="text-[10px] text-slate-400 truncate">admin@crm.lite</p>
-                </div>
+                <button
+                  onClick={logout}
+                  className="p-1.5 text-slate-400 hover:text-rose-500 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/20 dark:hover:text-rose-400 transition-colors cursor-pointer w-8 h-8 flex items-center justify-center"
+                  title="Logout"
+                >
+                  <LogOut className="h-4.5 w-4.5" />
+                </button>
               </div>
             </div>
           </div>
@@ -208,14 +233,19 @@ const Sidebar = () => {
           <div className="flex flex-col lg:flex-row items-center gap-3">
             {/* User Avatar Circle */}
             <div className="h-9 w-9 rounded-xl bg-indigo-500 text-white flex items-center justify-center shadow-md shadow-indigo-500/10 font-bold text-sm flex-shrink-0">
-              AD
+              {initials}
             </div>
             {/* Meta Details */}
             <div className="hidden lg:block flex-1 min-w-0">
-              <p className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">Admin Profile</p>
-              <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate">admin@crm.lite</p>
+              <p className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">
+                {user?.name || 'User'}
+              </p>
+              <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate">
+                {user?.email || ''}
+              </p>
             </div>
             <button 
+              onClick={logout}
               className="p-1.5 text-slate-400 hover:text-rose-500 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/20 dark:hover:text-rose-400 transition-colors cursor-pointer w-8 h-8 flex items-center justify-center"
               title="Logout"
             >
