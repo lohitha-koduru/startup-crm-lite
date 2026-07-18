@@ -5,18 +5,201 @@
 /* Enable class-based dark mode for Tailwind v4 */
 @custom-variant dark (&:where(.dark, .dark *));
 
+:root {
+  /* Tokyo Night Brand Colors - Light Theme */
+  --brand-bg: #F8FAFC;
+  --brand-surface: #EDF2F7;
+  --brand-surface-card: #FFFFFF;
+  --brand-primary: #3B5CCC;
+  --brand-secondary: #5E81F4;
+  --brand-accent: #FF8F5A;
+  --brand-text: #1A2330;
+  --brand-text-muted: #64748B;
+  --brand-border: #D9E2EF;
+
+  /* Redefining Tailwind scales to map perfectly to Tokyo Night */
+  /* Indigo Scale (Primary/Secondary Brand) */
+  --indigo-50: #EEF2FF;
+  --indigo-100: #E0E7FF;
+  --indigo-200: #C7D2FE;
+  --indigo-300: #A5B4FC;
+  --indigo-400: #818CF8;
+  --indigo-500: #5E81F4; /* Secondary */
+  --indigo-600: #3B5CCC; /* Primary */
+  --indigo-700: #2D469C;
+  --indigo-800: #1E2E66;
+  --indigo-900: #111A3D;
+  --indigo-950: #0A0D24;
+
+  /* Slate/Gray Scale (Neutral Brand) */
+  --slate-50: #EDF2F7; /* Surface */
+  --slate-100: #E2E8F0;
+  --slate-200: #D9E2EF; /* Border */
+  --slate-300: #CBD5E1;
+  --slate-400: #94A3B8;
+  --slate-500: #64748B;
+  --slate-600: #475569;
+  --slate-700: #334155;
+  --slate-800: #1E293B;
+  --slate-850: #1E293B;
+  --slate-900: #1A2330; /* Text */
+  --slate-950: #0F172A;
+
+  /* Blue Scale (Contacted Status) */
+  --blue-50: #EFF6FF;
+  --blue-100: #DBEAFE;
+  --blue-200: #BFDBFE;
+  --blue-300: #93C5FD;
+  --blue-400: #60A5FA;
+  --blue-500: #3B5CCC;
+  --blue-600: #2563EB;
+  --blue-700: #1D4ED8;
+  --blue-800: #1E3A8A;
+  --blue-900: #1E3A8A;
+  --blue-950: #172554;
+}
+
+.dark {
+  /* Tokyo Night Brand Colors - Dark Theme */
+  --brand-bg: #111827;
+  --brand-surface: #1B2435;
+  --brand-surface-card: #1B2435;
+  --brand-primary: #6C8DFF;
+  --brand-secondary: #9EB4FF;
+  --brand-accent: #FFA26E;
+  --brand-text: #F8FAFC;
+  --brand-text-muted: #94A3B8;
+  --brand-border: #2E3A52;
+
+  /* Redefining Tailwind scales to map perfectly to Tokyo Night */
+  /* Indigo Scale (Primary/Secondary Brand) */
+  --indigo-50: #1E2E66;
+  --indigo-100: #2D469C;
+  --indigo-200: #3B5CCC;
+  --indigo-300: #5E81F4;
+  --indigo-400: #818CF8;
+  --indigo-500: #6C8DFF; /* Primary */
+  --indigo-600: #9EB4FF; /* Secondary */
+  --indigo-700: #BFD0FF;
+  --indigo-800: #DCE3FF;
+  --indigo-900: #ECEFFF;
+  --indigo-950: #F3F6FF;
+
+  /* Slate/Gray Scale (Neutral Brand) */
+  --slate-50: #1B2435; /* Surface */
+  --slate-100: #223047;
+  --slate-200: #2E3A52; /* Border */
+  --slate-300: #475569;
+  --slate-400: #8092AD;
+  --slate-500: #94A3B8;
+  --slate-600: #CBD5E1;
+  --slate-700: #E2E8F0;
+  --slate-800: #EDF2F7;
+  --slate-850: #F8FAFC;
+  --slate-900: #F8FAFC; /* Text */
+  --slate-950: #FFFFFF;
+
+  /* Blue Scale (Contacted Status) */
+  --blue-50: #172554;
+  --blue-100: #1E3A8A;
+  --blue-200: #1D4ED8;
+  --blue-300: #2563EB;
+  --blue-400: #6C8DFF;
+  --blue-500: #9EB4FF;
+  --blue-600: #BFD0FF;
+  --blue-700: #DCE3FF;
+  --blue-800: #ECEFFF;
+  --blue-900: #F8FAFC;
+  --blue-950: #FFFFFF;
+}
+
 @theme {
-    --font-roboto:"Roboto",sans-serif;
-    --color-primary: #2563EB;
+    --font-roboto: "Roboto", sans-serif;
+    --color-primary: var(--brand-primary);
     --color-success: #22C55E;
-    --color-warning: #F59E0B;
+    --color-warning: var(--brand-accent);
     --color-danger: #EF4444;
 
-    --color-background: #F8FAFC;
-    --color-card: #FFFFFF;
+    --color-background: var(--brand-bg);
+    --color-card: var(--brand-surface-card);
 
-    --color-text-dark: #0F172A;
-    --color-text-gray: #64748B;
+    --color-text-dark: var(--brand-text);
+    --color-text-gray: var(--brand-text-muted);
+
+    /* Re-map standard indigo scale */
+    --color-indigo-50: var(--indigo-50);
+    --color-indigo-100: var(--indigo-100);
+    --color-indigo-200: var(--indigo-200);
+    --color-indigo-300: var(--indigo-300);
+    --color-indigo-400: var(--indigo-400);
+    --color-indigo-500: var(--indigo-500);
+    --color-indigo-600: var(--indigo-600);
+    --color-indigo-700: var(--indigo-700);
+    --color-indigo-800: var(--indigo-800);
+    --color-indigo-900: var(--indigo-900);
+    --color-indigo-950: var(--indigo-950);
+
+    /* Re-map standard slate scale */
+    --color-slate-50: var(--slate-50);
+    --color-slate-100: var(--slate-100);
+    --color-slate-200: var(--slate-200);
+    --color-slate-300: var(--slate-300);
+    --color-slate-400: var(--slate-400);
+    --color-slate-500: var(--slate-500);
+    --color-slate-600: var(--slate-600);
+    --color-slate-700: var(--slate-700);
+    --color-slate-800: var(--slate-800);
+    --color-slate-850: var(--slate-850);
+    --color-slate-900: var(--slate-900);
+    --color-slate-950: var(--slate-950);
+
+    /* Re-map standard blue scale */
+    --color-blue-50: var(--blue-50);
+    --color-blue-100: var(--blue-100);
+    --color-blue-200: var(--blue-200);
+    --color-blue-300: var(--blue-300);
+    --color-blue-400: var(--blue-400);
+    --color-blue-500: var(--blue-500);
+    --color-blue-600: var(--blue-600);
+    --color-blue-700: var(--blue-700);
+    --color-blue-800: var(--blue-800);
+    --color-blue-900: var(--blue-900);
+    --color-blue-950: var(--blue-950);
+}
+
+/* Global design overrides to replace white surfaces with the brand-surface color */
+.light .bg-white {
+  background-color: var(--brand-surface) !important;
+}
+.light .bg-white\/85 {
+  background-color: rgba(237, 242, 247, 0.85) !important;
+}
+.light .bg-white\/40 {
+  background-color: rgba(237, 242, 247, 0.40) !important;
+}
+
+.dark .bg-white {
+  background-color: var(--brand-surface) !important;
+}
+.dark .bg-white\/85 {
+  background-color: rgba(27, 36, 53, 0.85) !important;
+}
+.dark .bg-white\/40 {
+  background-color: rgba(27, 36, 53, 0.40) !important;
+}
+
+/* Recharts override styling in CSS to match the brand color theme */
+.recharts-bar-rectangles path,
+.recharts-bar-rectangle path {
+  fill: var(--brand-primary) !important;
+}
+.recharts-line-curve path {
+  stroke: var(--brand-primary) !important;
+}
+.recharts-default-tooltip {
+  background-color: var(--brand-surface) !important;
+  border-color: var(--brand-border) !important;
+  color: var(--brand-text) !important;
 }
 
 /* Smooth theme transition on all elements when switching modes */
